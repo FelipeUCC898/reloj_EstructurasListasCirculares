@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Clock Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Sleep Clock Manager</h1>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="clock-section">
+                <section id="clock">
+                    <h2>Analog Clock</h2>
+                    <canvas id="analogClock" width="600" height="600"></canvas>
+                    <div id="digitalClock" class="digital-clock"></div>
+                </section>
+            </div>
+            
+            <div class="controls-section">
+                <div class="control-panel">
+                    <!-- Navigation Tabs -->
+                    <nav class="control-nav">
+                        <button class="nav-btn active" data-tab="alarms">Set Alarms</button>
+                        <button class="nav-btn" data-tab="sleep">Sleep Schedule</button>
+                        <button class="nav-btn" data-tab="worldtime">World Clocks</button>
+                    </nav>
+
+                    <!-- Alarms Tab Content -->
+                    <div id="alarms-tab" class="tab-content active">
+                        <h2>Set Alarms</h2>
+                        
+                        <!-- Alarm Test Section -->
+                        <div class="alarm-test-section">
+                            <h3>Test Alarm Sound</h3>
+                            <div class="test-controls">
+                                <button id="testAlarmBtn" type="button">Test Alarm Sound</button>
+                                <button id="stopAlarmBtn" type="button" disabled>Stop Alarm</button>
+                            </div>
+                        </div>
+
+                        <!-- Alarm Form -->
+                        <form id="alarmForm">
+                            <input type="hidden" id="alarmId" name="alarmId">
+                            
+                            <label for="alarmName">Alarm Name:</label>
+                            <input type="text" id="alarmName" name="alarmName" placeholder="Morning Wake Up" required>
+                            
+                            <label for="alarmTime">Alarm Time:</label>
+                            <input type="time" id="alarmTime" name="alarmTime" required>
+                            
+                            <label for="alarmSound">Alarm Sound:</label>
+                            <input type="file" id="alarmSound" accept=".mp3,.wav,.ogg">
+                            
+                            <div class="form-actions">
+                                <button type="submit" id="submitAlarmBtn">Add Alarm</button>
+                                <button type="button" id="clearFormBtn">Clear Form</button>
+                                <button type="button" id="cancelEditBtn" style="display: none;">Cancel Edit</button>
+                            </div>
+                        </form>
+                        
+                        <!-- Success Message -->
+                        <div id="alarmSuccessMessage" class="success-message" style="display: none;">
+                            Alarm created successfully!
+                        </div>
+                        
+                        <div id="alarmsList" class="alarms-list">
+                            <h3>Active Alarms</h3>
+                            <div class="alarms-header">
+                                <span>Total: <span id="alarmsCount">0</span> alarms</span>
+                                <button id="refreshAlarmsBtn" type="button">Refresh List</button>
+                            </div>
+                            <ul id="alarmsListItems"></ul>
+                        </div>
+
+                        <!-- Active Alarm Notification -->
+                        <div id="activeAlarmNotification" class="alarm-notification" style="display: none;">
+                            <div class="alarm-alert">
+                                <div class="alarm-icon">🔔</div>
+                                <div class="alarm-info">
+                                    <h4 id="alarmNotificationTitle">Alarm Triggered!</h4>
+                                    <p id="alarmNotificationTime"></p>
+                                </div>
+                                <button id="dismissAlarmBtn" class="dismiss-btn">Dismiss</button>
+                            </div>
+                        </div>
+
+                        <!-- Edit Alarm Modal -->
+                        <div id="editAlarmModal" class="modal" style="display: none;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3>Edit Alarm</h3>
+                                    <button class="close-modal">&times;</button>
+                                </div>
+                                <form id="editAlarmForm">
+                                    <input type="hidden" id="editAlarmId">
+                                    
+                                    <label for="editAlarmName">Alarm Name:</label>
+                                    <input type="text" id="editAlarmName" name="editAlarmName" required>
+                                    
+                                    <label for="editAlarmTime">Alarm Time:</label>
+                                    <input type="time" id="editAlarmTime" name="editAlarmTime" required>
+                                    
+                                    <label for="editAlarmSound">Alarm Sound:</label>
+                                    <input type="file" id="editAlarmSound" accept=".mp3,.wav,.ogg">
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit">Update Alarm</button>
+                                        <button type="button" id="closeEditModal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sleep Schedule Tab Content -->
+                    <div id="sleep-tab" class="tab-content">
+                        <h2>Sleep Schedule</h2>
+                        <form id="sleepForm">
+                            <label for="bedTime">Bedtime:</label>
+                            <input type="time" id="bedTime" required>
+                            
+                            <label for="wakeTime">Wake-up Time:</label>
+                            <input type="time" id="wakeTime" required>
+                            
+                            <label for="bedtimeSound">Bedtime Sound:</label>
+                            <input type="file" id="bedtimeSound" accept=".mp3,.wav">
+                            
+                            <label for="wakeupSound">Wake-up Sound:</label>
+                            <input type="file" id="wakeupSound" accept=".mp3,.wav">
+                            
+                            <button type="submit">Save Schedule</button>
+                        </form>
+                    </div>
+
+                    <!-- World Clocks Tab Content -->
+                    <div id="worldtime-tab" class="tab-content">
+                        <h2>World Clocks</h2>
+                        <div class="timezone-controls">
+                            <select id="timezoneSelector">
+                                <option value="UTC">UTC</option>
+                                <option value="New York">New York</option>
+                                <option value="London">London</option>
+                                <option value="Tokyo">Tokyo</option>
+                                <option value="Bogota">Bogotá</option>
+                                <option value="Paris">Paris</option>
+                                <option value="Sydney">Sydney</option>
+                            </select>
+                            <button id="addTimezoneBtn">Add Timezone</button>
+                        </div>
+                        <div id="worldClockDisplay" class="world-clocks"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Sleep Clock Manager | Designed for students</p>
+    </footer>
+
+    <audio id="alarmAudio" preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
