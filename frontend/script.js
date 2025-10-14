@@ -1,6 +1,10 @@
 class SleepClockManager {
     constructor() {
-        this.baseURL = 'http://localhost:8080'; // Updated port to 8080
+        // Usar la URL de Render en producción, localhost en desarrollo
+        this.baseURL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : 'https://reloj-estructuraslistascirculares.onrender.com'; // Reemplaza con tu URL real de Render
+
         this.audioContext = null;
         this.alarmAudio = document.getElementById('alarmAudio');
         this.currentAlarm = null;
