@@ -139,25 +139,39 @@
 
                     <!-- World Clocks Tab Content -->
                     <div id="worldtime-tab" class="tab-content">
-                        <h2>World Clocks</h2>
-                        <div class="timezone-controls">
-                            <select id="timezoneSelector">
-                                <option value="UTC">UTC</option>
-                                <option value="New York">New York</option>
-                                <option value="London">London</option>
-                                <option value="Tokyo">Tokyo</option>
-                                <option value="Bogota">Bogotá</option>
-                                <option value="Paris">Paris</option>
-                                <option value="Sydney">Sydney</option>
-                            </select>
-                            <button id="addTimezoneBtn">Add Timezone</button>
+                    <h2>World Clocks</h2>
+                    
+                    <!-- Time Format Toggle -->
+                    <div class="time-format-section">
+                        <div class="format-toggle-container">
+                            <div class="format-label">
+                                <span>⏰ Time Format</span>
+                            </div>
+                            <div class="format-options">
+                                <span class="format-option ${this.timeFormat === '24h' ? 'active' : ''}">24H</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="timeFormatToggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="format-option ${this.timeFormat === '12h' ? 'active' : ''}">12H</span>
+                            </div>
                         </div>
-                        <div id="worldClockDisplay" class="world-clocks"></div>
                     </div>
+
+                    <div class="timezone-controls">
+                        <select id="timezoneSelector">
+                            <option value="UTC">UTC</option>
+                            <option value="New York">New York</option>
+                            <option value="London">London</option>
+                            <option value="Tokyo">Tokyo</option>
+                            <option value="Bogota">Bogotá</option>
+                            <option value="Paris">Paris</option>
+                            <option value="Sydney">Sydney</option>
+                        </select>
+                        <button id="addTimezoneBtn">Add Timezone</button>
+                    </div>
+                    <div id="worldClockDisplay" class="world-clocks"></div>
                 </div>
-            </div>
-        </div>
-    </main>
 
     <footer>
         <p>&copy; 2025 Sleep Clock Manager | Designed for students</p>

@@ -10,7 +10,8 @@ class SleepClockManager {
         this.currentAlarm = null;
         this.isAlarmPlaying = false;
         this.alarmInterval = null;
-        this.editingAlarmId = null;
+    this.editingAlarmId = null;
+    this.timeFormat = '24h'; // '24h' or '12h'
 
         this.init();
     }
@@ -19,6 +20,7 @@ class SleepClockManager {
         if (await this.testConnection()) {
             this.setupEventListeners();
             this.startClock();
+            this.startWorldClocks(); // Iniciar relojes mundiales en tiempo real
             this.loadTimezones();
             this.loadAlarms();
 
@@ -137,6 +139,15 @@ class SleepClockManager {
 
         // Tab navigation
         this.setupTabNavigation();
+
+        // Time format toggle (si existe en el HTML)
+        const timeFormatToggle = document.getElementById('timeFormatToggle');
+        if (timeFormatToggle) {
+            timeFormatToggle.addEventListener('change', (e) => {
+                this.timeFormat = e.target.checked ? '12h' : '24h';
+                this.updateAllClocks();
+            });
+        }
     }
 
     async saveAlarm() {
@@ -487,9 +498,15 @@ class SleepClockManager {
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
         
-        // Update digital clock
-        document.getElementById('digitalClock').textContent = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        // Update digital clock using selected format (12h/24h)
+        const timeDisplay = this.formatTime(hours, minutes, seconds);
+        const digitalClockEl = document.getElementById('digitalClock');
+        if (digitalClockEl) {
+            digitalClockEl.innerHTML = `
+                ${timeDisplay.time}
+                ${timeDisplay.period ? `<span class="time-period">${timeDisplay.period}</span>` : ''}
+            `;
+        }
         
         // Update analog clock
         this.drawAnalogClock(hours, minutes, seconds);
@@ -929,6 +946,147 @@ class SleepClockManager {
         // For now, we'll just reload the timezones to show the current selection
         this.loadTimezones();
         alert(`Timezone ${selectedTimezone} displayed`);
+    }
+
+    // Iniciar relojes mundiales en tiempo real
+    startWorldClocks() {
+        // Actualizar inmediatamente
+        this.updateWorldClocks();
+        // Actualizar cada segundo para movimiento suave
+        setInterval(() => this.updateWorldClocks(), 1000);
+    }
+
+    // Actualizar relojes mundiales
+    updateWorldClocks() {
+        const now = new Date();
+        const timezones = [
+            { name: "UTC", offset: 0 },
+            { name: "New York", offset: -5 },
+            { name: "London", offset: 0 },
+            { name: "Tokyo", offset: 9 },
+            { name: "Bogota", offset: -5 },
+            { name: "Paris", offset: 1 },
+            { name: "Sydney", offset: 11 },
+            { name: "Moscow", offset: 3 },
+            { name: "Dubai", offset: 4 },
+            { name: "Los Angeles", offset: -8 }
+        ];
+
+        const worldClockDisplay = document.getElementById('worldClockDisplay');
+        if (!worldClockDisplay) return;
+
+        worldClockDisplay.innerHTML = '';
+
+        timezones.forEach(tz => {
+            const tzTime = this.calculateTimezoneTime(now, tz.offset);
+            const card = document.createElement('div');
+            card.className = 'timezone-card';
+            
+            const timeDisplay = this.formatTime(tzTime.hours, tzTime.minutes, tzTime.seconds);
+            
+            card.innerHTML = `
+                <div class="timezone-name">${tz.name}</div>
+                <div class="timezone-time">${timeDisplay.time}</div>
+                <div class="timezone-period">${timeDisplay.period}</div>
+                <div class="timezone-offset">UTC${tz.offset >= 0 ? '+' : ''}${tz.offset}</div>
+                <div class="world-analog-clock">
+                    <canvas id="worldClock-${tz.name.replace(/\s+/g, '')}" width="80" height="80"></canvas>
+                </div>
+            `;
+            
+            worldClockDisplay.appendChild(card);
+            
+            // Dibujar reloj analógico para esta zona horaria
+            this.drawWorldAnalogClock(`worldClock-${tz.name.replace(/\s+/g, '')}`, tzTime.hours, tzTime.minutes, tzTime.seconds);
+        });
+    }
+
+    // Calcular hora para zona horaria
+    calculateTimezoneTime(now, offset) {
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const tzDate = new Date(utc + (3600000 * offset));
+        
+        return {
+            hours: tzDate.getHours(),
+            minutes: tzDate.getMinutes(),
+            seconds: tzDate.getSeconds()
+        };
+    }
+
+    // Formatear hora según el formato seleccionado
+    formatTime(hours, minutes, seconds) {
+        if (this.timeFormat === '12h') {
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const twelveHour = hours % 12 || 12;
+            return {
+                time: `${twelveHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+                period: period
+            };
+        } else {
+            return {
+                time: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+                period: ''
+            };
+        }
+    }
+
+    // Dibujar reloj analógico mundial
+    drawWorldAnalogClock(canvasId, hours, minutes, seconds) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !canvas.getContext) return;
+        
+        const ctx = canvas.getContext('2d');
+        const radius = canvas.width / 2;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw clock face
+        ctx.beginPath();
+        ctx.arc(radius, radius, radius - 5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#2C3E50';
+        ctx.fill();
+        ctx.strokeStyle = '#4FC3F7';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        // Draw hour hand
+        const hourAngle = (hours % 12 + minutes / 60) * (Math.PI * 2) / 12 - Math.PI / 2;
+        this.drawWorldHand(ctx, radius, hourAngle, radius * 0.4, 3, '#FFFFFF');
+        
+        // Draw minute hand
+        const minuteAngle = (minutes + seconds / 60) * (Math.PI * 2) / 60 - Math.PI / 2;
+        this.drawWorldHand(ctx, radius, minuteAngle, radius * 0.6, 2, '#4FC3F7');
+        
+        // Draw second hand
+        const secondAngle = seconds * (Math.PI * 2) / 60 - Math.PI / 2;
+        this.drawWorldHand(ctx, radius, secondAngle, radius * 0.7, 1, '#81C784');
+        
+        // Draw center circle
+        ctx.beginPath();
+        ctx.arc(radius, radius, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = '#81C784';
+        ctx.fill();
+    }
+
+    drawWorldHand(ctx, radius, angle, length, width, color) {
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = color;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(length, 0);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // Actualizar todos los relojes
+    updateAllClocks() {
+        this.updateClock(); // Reloj principal
+        this.updateWorldClocks(); // Relojes mundiales
     }
 }
 

@@ -510,34 +510,40 @@ button:hover {
     font-style: italic;
 }
 
-/* World clocks */
-.timezone-controls {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
+/* World Clocks Improvements */
 .world-clocks {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    max-height: 300px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-height: 500px;
     overflow-y: auto;
     padding: 0.5rem;
 }
 
 .timezone-card {
-    background-color: #1E2A38;
-    padding: 1rem;
-    border-radius: 6px;
-    border: 1px solid #B0BEC5;
+    background: linear-gradient(135deg, #1E2A38 0%, #2C3E50 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #4FC3F7;
     text-align: center;
-    transition: transform 0.2s;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .timezone-card:hover {
-    transform: translateY(-2px);
-    border-color: #4FC3F7;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(79, 195, 247, 0.3);
+}
+
+.timezone-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4FC3F7, #81C784);
 }
 
 .timezone-name {
@@ -549,14 +555,149 @@ button:hover {
 
 .timezone-time {
     color: #81C784;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
     margin-bottom: 0.25rem;
+    font-family: 'Courier New', monospace;
+}
+
+.timezone-period {
+    color: #FFA726;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
 }
 
 .timezone-offset {
     color: #B0BEC5;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.world-analog-clock {
+    margin-top: 0.5rem;
+}
+
+.world-analog-clock canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Time Format Toggle */
+.time-format-section {
+    background: rgba(79, 195, 247, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #4FC3F7;
+}
+
+.format-toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.format-label {
+    color: #FFFFFF;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.format-options {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.format-option {
+    color: #B0BEC5;
     font-size: 0.9rem;
+}
+
+.format-option.active {
+    color: #81C784;
+    font-weight: bold;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #B0BEC5;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #81C784;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
+/* Digital Clock Period */
+.time-period {
+    color: #FFA726;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .world-clocks {
+        grid-template-columns: 1fr;
+    }
+    
+    .timezone-card {
+        padding: 1rem;
+    }
+    
+    .timezone-time {
+        font-size: 1.2rem;
+    }
+    
+    .format-toggle-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
 }
 
 /* Clock styles */
